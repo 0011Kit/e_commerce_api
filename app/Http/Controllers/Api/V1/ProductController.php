@@ -12,7 +12,7 @@ use App\Http\Resources\V1\ProductCollection;
 use Illuminate\Http\Request;
 use App\Filters\V1\ProductQuery;
 
-class ProductController extends Controller
+class ProductController extends Controller 
 {
     /**
      * Display a listing of the resource.

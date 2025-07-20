@@ -46,7 +46,7 @@ return [
         ],
         'seller' => [
             'driver' => 'sanctum',
-            'provider' => 'seller',
+            'provider' => 'sellers',
         ],
     ],
 
@@ -77,7 +77,7 @@ return [
             'driver' => 'eloquent',
             'model' => App\Models\Customer::class,
         ],
-        'seller' => [
+        'sellers' => [
             'driver' => 'eloquent',
             'model' => App\Models\Seller::class,
         ],

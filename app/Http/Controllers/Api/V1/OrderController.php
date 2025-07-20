@@ -14,6 +14,7 @@ use App\Models\PaymentCartTrxn;
 use App\Models\PaymentCartDtl;
 use App\Models\OrderItem;
 use App\Models\Product;
+use App\Models\CancelReq;
 
 class OrderController extends Controller
 {
@@ -206,7 +207,8 @@ class OrderController extends Controller
 
         $customer = $request->user();
 
-        $order = Order::where('order_no', $request->orderNo)
+        $order = Order::with('orderItems.product')  // nested relationship
+            ->where('order_no', $request->orderNo)
             ->where('customer_no', $customer->customer_no)
             ->first();
 
@@ -221,7 +223,7 @@ class OrderController extends Controller
             $order->order_status = 'C'; // C = Cancelled
             $order->cancel_req_date = now(); 
             $order->cancel_approval_date = now(); 
-            $order->cancel_by = 0; 
+            $order->cancel_approved_by = 0; 
             $order->save();
 
             $customer->customer_balance += $order->order_grand_total;
@@ -233,15 +235,30 @@ class OrderController extends Controller
                 'currentStatus' =>  $order->order_status 
             ]);
         } else {
-            //Request seller approval
-            $order->order_status = 'P'; // P = Pending Cancellation Approval
-            $order->cancel_req_date = now(); 
+            // Request seller approval
+            $order->order_status = 'P';
+            $order->cancel_req_date = now();
             $order->save();
+
+            $sellerNos = $order->orderItems
+                ->pluck('product.seller_no')
+                ->unique()
+                ->filter();
+
+            foreach ($sellerNos as $sellerNo) {
+                CancelReq::create([
+                    'order_no'     => $order->order_no,
+                    'seller_no'    => $sellerNo,
+                    'status'       => 'PENDING',
+                    'reason'       => $request->reason,
+                    'requested_at' => now(),
+                ]);
+            }
 
             return response()->json([
                 'message' => 'Cancellation requested. Awaiting seller approval.',
                 'order_no' => $order->order_no,
-                'currentStatus' =>  $order->order_status 
+                'currentStatus' => $order->order_status
             ]);
         }
     }

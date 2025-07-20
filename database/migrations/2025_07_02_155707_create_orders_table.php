@@ -24,7 +24,7 @@ return new class extends Migration
             $table->dateTime('completed_date')->nullable();
             $table->dateTime('cancel_req_date')->nullable();
             $table->dateTime('cancel_approval_date')->nullable();
-            $table->dateTime('cancel_by')->nullable();
+            $table->string('cancel_approved_by')->nullable();
 
             $table->timestamps();
         });
