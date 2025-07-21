@@ -37,8 +37,10 @@ class ProductController extends Controller
 
         $result = $products->paginate();
 
-        return new ProductCollection($result);
-               
+        return response()->json([
+            'message' => 'Product List retrieved successfully.',
+            'data' => new ProductCollection($result)
+        ]);
     }
 
     /**

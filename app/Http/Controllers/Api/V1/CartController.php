@@ -49,7 +49,16 @@ class CartController extends Controller
             ]);
         }
 
-        return response()->json(['message' => 'Product [Name: '.$product->product_name.' - PID : '.$product->product_no.'] [Amt :'.$request->quantity.'] added to  '. $customer->customer_name . '\'s cart successfully']);
+        return response()->json([
+            'message' => 'Product added to cart successfully.',
+            'data' => [
+                'product id' => $product->product_no,
+                'product name' => $product->product_name,
+                'quantity' => $request->quantity,
+                'customer name' => $customer->customer_name,
+                'cart trxn id' => $trxn->payctrxn_no
+            ]
+        ]);    
     }
 
     public function viewCart(Request $request){
@@ -65,7 +74,10 @@ class CartController extends Controller
             return response()->json(['message' => 'Cart is empty'], 200);
         }
 
-        return new PaymentCartResource($cart);
+        return response()->json([
+            'message' => 'Cart retrieved successfully.',
+            'cartList' =>  new PaymentCartResource($cart)
+        ]);
     }
 
     public function removeTransaction(Request $request, $payctrxn_no){
@@ -84,7 +96,9 @@ class CartController extends Controller
 
         $transaction->delete();
 
-        return response()->json(['message' => 'paycTrxn Id: '.$payctrxn_no.' removed from cart.']);
+        return response()->json([
+            'message' => 'paycTrxn Id: '.$payctrxn_no.' removed from cart.'
+        ]);
     }
 
     public function editCartItem(Request $request){
@@ -111,11 +125,20 @@ class CartController extends Controller
                 $item->paycdtl_selected_amt = $request->quantity;
                 $item->save();
 
-                return response()->json(['message' => 'Product Id: '.$request->productId. ' in PaymentCartTrxn :'.$trxn->payctrxn_no.' updated to '.$request->quantity.' successfully.']);
+                return response()->json([
+                    'message' => 'Product amt updated successfully.',
+                    'data' => [
+                        'product id' => $request->productId,
+                        'quantity' => $request->quantity,
+                        'cart trxn id' => $trxn->payctrxn_no
+                    ]
+                ]);
             }
         }
 
-        return response()->json(['message' => 'Product not found in cart'], 404);
+        return response()->json([
+            'message' => 'Product not found in cart'
+        ], 404);
     }
 
     public function reviewOrder(Request $request){
@@ -126,7 +149,10 @@ class CartController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
-        return response()->json(['data' => $orders]);
+        return response()->json([
+            'message' => 'Order review list retrieved successfully.',
+            'data' => $orders
+        ]);
     }
 
 }

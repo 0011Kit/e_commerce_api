@@ -19,7 +19,7 @@ class CancelReqController extends Controller
             ->get();
 
         return response()->json([
-            'message' => 'Pending Approval List:',
+            'message' => 'Pending Approval List retrieved successfully.',
             'data' => $requests
         ]);
     }
@@ -54,8 +54,11 @@ class CancelReqController extends Controller
         }
 
         return response()->json([
-            'message' => 'Cancellation Status: '. $approve,
-            'orderStatus' => $order->order_status
+            'message' => 'Cancellation Status updated successfully. ',
+            'data' => [
+                'seller decision' => $approve,
+                'order' => $order
+            ]
         ]);
     }
 }

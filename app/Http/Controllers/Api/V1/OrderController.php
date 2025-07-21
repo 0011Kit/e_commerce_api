@@ -30,7 +30,10 @@ class OrderController extends Controller
             ? Order::where($queryItems)->paginate()
             : Order::paginate();
 
-        return new OrderCollection($order);
+        return response()->json([
+                'message' => 'Order List retrieved successfully.',
+                'data' => new OrderCollection($order)
+        ]);
     }
 
     public function reviewOrderList(Request $request){
@@ -41,7 +44,10 @@ class OrderController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
-        return response()->json(['data' => $orders]);
+        return response()->json([
+            'message' => 'Order list of [CustNo: '.$customer->customer_no.'] retrieved successfully.',
+            'data' => $orders
+        ]);
     }
 
    public function orderFromCart(Request $request){
@@ -203,6 +209,7 @@ class OrderController extends Controller
          $request->validate([
             'reason' => 'required',
             'orderNo' => 'exists:orders,order_no',
+            'forceApproval' => 'boolean'
         ]);
 
         $customer = $request->user();
@@ -217,8 +224,9 @@ class OrderController extends Controller
         }
 
         $cancelDeadline = $order->created_at->addMinutes(10);
+        $forceApproval = $request->forceApproval ?? false;      
 
-        if (now()->lessThanOrEqualTo($cancelDeadline)) {
+        if (now()->lessThanOrEqualTo($cancelDeadline) && !$forceApproval) {
             //Can auto cancel
             $order->order_status = 'C'; // C = Cancelled
             $order->cancel_req_date = now(); 

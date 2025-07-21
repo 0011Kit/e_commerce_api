@@ -37,8 +37,10 @@ class CustomerController extends Controller
 
         $result = $customers->paginate();
 
-        return new CustomerCollection($result);
-               
+        return response() -> json([
+                'message' => 'Customer List retrieved successfully.',
+                'data' => new CustomerCollection($result)            
+        ]);
     }
 
    
@@ -53,10 +55,10 @@ class CustomerController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Customer $customer)
-    {
-        return new CustomerResource($customer);
-    }
+    // public function show(Customer $customer)
+    // {
+    //     return new CustomerResource($customer);
+    // }
 
     /**
      * Show the form for editing the specified resource.

@@ -38,8 +38,10 @@ class SellerController extends Controller{
 
         $result = $sellers->paginate();
 
-        return new SellerCollection($result);
-               
+        return response()->json([
+            'message' => 'Seller List retrieved successfully.',
+            'data' => new SellerCollection($result)
+        ]);
     }
 
     /**
